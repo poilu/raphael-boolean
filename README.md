@@ -22,7 +22,7 @@ In your application load the plugin after the Raphaël library.
 <script type="text/javascript" src="raphael.boolean.js"></script>
 ```
 
-Create a Raphaël canvas (e.g. on <div id="canvas"></div>) and at least two elements.
+Create a Raphaël canvas (e.g. on &lt;div id="canvas" &gt;&lt;/div&gt;) and at least two elements.
 
 ``` js
 var paper = Raphael("canvas", 250, 250);
