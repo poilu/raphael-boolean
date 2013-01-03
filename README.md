@@ -37,10 +37,10 @@ ellipse.attr({fill: "#0a0", stroke: "none"});
 Now you can perform one of the operations which delivers a string for the resulting path. Every of the four methods has two parameters for the Raphaël elements to process.
 
 ``` js
-newPathStr = paper.union(path, ellipse);
+var newPathStr = paper.union(path, ellipse);
 
 //draw a new path element using that string
-newPath = paper.path(newPathStr);
+var newPath = paper.path(newPathStr);
 newPath.attr({fill: "#666"});
 
 // as they aren't needed anymore remove the other elements
