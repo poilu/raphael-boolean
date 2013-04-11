@@ -32,7 +32,8 @@
 
 	/**
 	 * Shortcut helper
-	 * @return string
+	 *
+	 * @returns string (path string)
 	 */
 	var pathSegsToStr = function(pathSegs) {
 		return pathArrToStr(pathSegsToArr(pathSegs));
@@ -172,21 +173,22 @@
 
 		for (var i = 0; i < pathSegs.length; i++) {
 			//ignore empty segments
-			if (pathSegs[i].length > 0) {
-				var com = []; //command
-				//if start point of current segment is different from end point of previous segment add a new subpath
-				if (i === 0 || (pathSegs[i][0] != pathSegs[i - 1][pathSegs[i - 1].length - 2] || pathSegs[i][1] != pathSegs[i - 1][pathSegs[i - 1].length - 1])) {
-					com.push("M", pathSegs[i][0], pathSegs[i][1]);
-					pathArr.push(com);
-					com = [];
-				}
-				com.push("C");
-
-				for (var j = 2; j < pathSegs[i].length; j++) {
-					com.push(pathSegs[i][j]);
-				}
-				pathArr.push(com);
+			if (pathSegs[i].length === 0) {
+				continue;
 			}
+			var command = [];
+			//if start point of current segment is different from end point of previous segment add a new subpath
+			if (i === 0 || (pathSegs[i][0] != pathSegs[i - 1][pathSegs[i - 1].length - 2] || pathSegs[i][1] != pathSegs[i - 1][pathSegs[i - 1].length - 1])) {
+				command.push("M", pathSegs[i][0], pathSegs[i][1]);
+				pathArr.push(command);
+				command = [];
+			}
+			command.push("C");
+
+			for (var j = 2; j < pathSegs[i].length; j++) {
+				command.push(pathSegs[i][j]);
+			}
+			pathArr.push(command);
 		}
 
 		return pathArr;
@@ -562,26 +564,27 @@
 			for (var s = 0; s < paths[p].segs.length; s++) {
 				segCoords = paths[p].segs[s];
 
-				if (segCoords.length > 0) {
-					if (!IOSituationChecked) {
-						insideOtherPath = isSegInsidePath(segCoords, pathArrToStr(pathSegsToArr(paths[p ^ 1].segs)));
-						IOSituationChecked = true;
-						partNeeded = (rules[type][p] == insideOtherPath);
-					}
+				if (segCoords.length === 0) {
+					continue;
+				}
+				if (!IOSituationChecked) {
+					insideOtherPath = isSegInsidePath(segCoords, pathArrToStr(pathSegsToArr(paths[p ^ 1].segs)));
+					IOSituationChecked = true;
+					partNeeded = (rules[type][p] == insideOtherPath);
+				}
 
-					//if conditions are satisfied add current segment to new part
+				//if conditions are satisfied add current segment to new part
+				if (partNeeded) {
+					newPathPart.push(segCoords);
+				}
+
+				if (typeof segCoords.endPoint != "undefined") {
 					if (partNeeded) {
-						newPathPart.push(segCoords);
+						newPathPart.pathNr = paths[p].nr;
+						newParts.push(newPathPart);
 					}
-
-					if (typeof segCoords.endPoint != "undefined") {
-						if (partNeeded) {
-							newPathPart.pathNr = paths[p].nr;
-							newParts.push(newPathPart);
-						}
-						newPathPart = [];
-						IOSituationChecked = false;
-					}
+					newPathPart = [];
+					IOSituationChecked = false;
 				}
 			}
 		}
@@ -698,15 +701,16 @@
 			for (var i = 0; i < dirCheck.length; i++) {
 				//inside which subpath is the subpath that has to be checked
 				for (var o = 0; o < newPath.length; o++) {
-					if (dirCheck[i] != o) {
-						if (isSegInsidePath(newPath[dirCheck[i]][0], pathArrToStr(pathSegsToArr(newPath[o])))) {
-							var pathDirOut = getPathDirection(newPath[o]);
-							var pathDirIn = getPathDirection(newPath[dirCheck[i]]);
+					if (dirCheck[i] == o) {
+						continue;
+					}
+					if (isSegInsidePath(newPath[dirCheck[i]][0], pathArrToStr(pathSegsToArr(newPath[o])))) {
+						var pathDirOut = getPathDirection(newPath[o]);
+						var pathDirIn = getPathDirection(newPath[dirCheck[i]]);
 
-							//if both subpaths have the same direction invert the inner path
-							if (pathDirIn == pathDirOut) {
-								invertPart(newPath[dirCheck[i]]);
-							}
+						//if both subpaths have the same direction invert the inner path
+						if (pathDirIn == pathDirOut) {
+							invertPart(newPath[dirCheck[i]]);
 						}
 					}
 				}
