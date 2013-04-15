@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Raphael.boolean</title>
+		<title>Raphael.boolean bug</title>
 	</head>
 	<body>
 		<script src="./../raphael-min.js"></script>
@@ -19,10 +19,11 @@
 				var path = paper.path("M 43,53 183,85 C 194,113 179,136 167,161 122,159 98,195 70,188 Z");
 				path.attr({fill: "#a00", stroke: "none"});
 
-				var ellipse = paper.ellipse(170, 160, 40, 35);
-				ellipse.attr({fill: "#0a0", stroke: "none"});
+				var rectangle = paper.rect(90, 20, 25, 90);
+				rectangle.attr({fill: "#0a0", stroke: "none"});
+				console.log(rectangle);
 
-				var booleanStr = paper[type](path, ellipse);
+				var booleanStr = paper[type](path, rectangle);
 				var booleanPath = paper.path(booleanStr);
 				booleanPath.attr({fill: "#00a", stroke: "none"});
 				booleanPath.transform("t250,0");
