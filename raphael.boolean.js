@@ -433,10 +433,10 @@
 
 		//get intersections with extrema for t on line
 		for (var i = 0; i < inters.length; i++) {
-			if (minT == undefined || inters[i].t1 <= inters[minT].t1) {
+			if (minT === undefined || inters[i].t1 <= inters[minT].t1) {
 				minT = i;
 			}
-			if (maxT == undefined || inters[i].t1 >= inters[maxT].t1) {
+			if (maxT === undefined || inters[i].t1 >= inters[maxT].t1) {
 				maxT = i;
 			}
 		}
