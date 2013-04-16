@@ -40,6 +40,70 @@
 	};
 
 	/**
+	 * convert raphael's internal path representation (must be converted to curves before) to segments / bezier curves
+	 *
+	 * @param array pathArr (RaphaelJS path array)
+	 *
+	 * @returns array pathSegs (path as a collection of segments)
+	 */
+	var pathArrToSegs = function(pathArr) {
+		var pathSegs = [];
+
+		for (var i = 0; i < pathArr.length; i++) {
+			//if command is a moveto create new sub-path
+			var seg = [];
+			if (pathArr[i][0] != "M") {
+
+				seg.push(pathArr[i - 1][pathArr[i - 1].length - 2], pathArr[i - 1][pathArr[i - 1].length - 1]);
+
+				for (var j = 1; j < pathArr[i].length; j++) {
+					seg.push(pathArr[i][j]);
+				}
+			}
+			//add empty segments for "moveto", because Raphael counts it when calculating interceptions
+			if (i > 0) {
+				pathSegs.push(seg);
+			}
+
+		}
+
+		return pathSegs;
+	};
+
+	/**
+	 * convert segments / bezier curves representation of a path to raphael's internal path representation (svg commands as array)
+	 *
+	 * @param array pathSegs (path as a collection of segments)
+	 *
+	 * @returns array pathArr (RaphaelJS path array)
+	 */
+	var pathSegsToArr = function(pathSegs) {
+		var pathArr = [];
+
+		for (var i = 0; i < pathSegs.length; i++) {
+			//ignore empty segments
+			if (pathSegs[i].length === 0) {
+				continue;
+			}
+			var command = [];
+			//if start point of current segment is different from end point of previous segment add a new subpath
+			if (i === 0 || (pathSegs[i][0] != pathSegs[i - 1][pathSegs[i - 1].length - 2] || pathSegs[i][1] != pathSegs[i - 1][pathSegs[i - 1].length - 1])) {
+				command.push("M", pathSegs[i][0], pathSegs[i][1]);
+				pathArr.push(command);
+				command = [];
+			}
+			command.push("C");
+
+			for (var j = 2; j < pathSegs[i].length; j++) {
+				command.push(pathSegs[i][j]);
+			}
+			pathArr.push(command);
+		}
+
+		return pathArr;
+	};
+
+	/**
 	 * convert a non-path RaphaelJS-Object (rect, circle, ellipse) into a path
 	 *
 	 * @param object obj
@@ -128,70 +192,6 @@
 		}
 
 		return pathArrToStr(path);
-	};
-
-	/**
-	 * convert raphael's internal path representation (must be converted to curves before) to segments / bezier curves
-	 *
-	 * @param array pathArr (RaphaelJS path array)
-	 *
-	 * @returns array pathSegs (path as a collection of segments)
-	 */
-	var pathArrToSegs = function(pathArr) {
-		var pathSegs = [];
-
-		for (var i = 0; i < pathArr.length; i++) {
-			//if command is a moveto create new sub-path
-			var seg = [];
-			if (pathArr[i][0] != "M") {
-
-				seg.push(pathArr[i - 1][pathArr[i - 1].length - 2], pathArr[i - 1][pathArr[i - 1].length - 1]);
-
-				for (var j = 1; j < pathArr[i].length; j++) {
-					seg.push(pathArr[i][j]);
-				}
-			}
-			//add empty segments for "moveto", because Raphael counts it when calculating interceptions
-			if (i > 0) {
-				pathSegs.push(seg);
-			}
-
-		}
-
-		return pathSegs;
-	};
-
-	/**
-	 * convert segments / bezier curves representation of a path to raphael's internal path representation (svg commands as array)
-	 *
-	 * @param array pathSegs (path as a collection of segments)
-	 *
-	 * @returns array pathArr (RaphaelJS path array)
-	 */
-	var pathSegsToArr = function(pathSegs) {
-		var pathArr = [];
-
-		for (var i = 0; i < pathSegs.length; i++) {
-			//ignore empty segments
-			if (pathSegs[i].length === 0) {
-				continue;
-			}
-			var command = [];
-			//if start point of current segment is different from end point of previous segment add a new subpath
-			if (i === 0 || (pathSegs[i][0] != pathSegs[i - 1][pathSegs[i - 1].length - 2] || pathSegs[i][1] != pathSegs[i - 1][pathSegs[i - 1].length - 1])) {
-				command.push("M", pathSegs[i][0], pathSegs[i][1]);
-				pathArr.push(command);
-				command = [];
-			}
-			command.push("C");
-
-			for (var j = 2; j < pathSegs[i].length; j++) {
-				command.push(pathSegs[i][j]);
-			}
-			pathArr.push(command);
-		}
-
-		return pathArr;
 	};
 
 	/**
@@ -421,7 +421,7 @@
 		var startY = pathSegArr[0][1];
 
 		//convert path to string
-		var path = pathArrToStr(pathSegsToArr(pathSegArr));
+		var path = pathSegsToStr(pathSegArr);
 		var box = Raphael.pathBBox(path);
 
 		//"draw" a horizontal line from left to right at half height of path's bbox
@@ -568,7 +568,7 @@
 					continue;
 				}
 				if (!IOSituationChecked) {
-					insideOtherPath = isSegInsidePath(segCoords, pathArrToStr(pathSegsToArr(paths[p ^ 1].segs)));
+					insideOtherPath = isSegInsidePath(segCoords, pathSegsToStr(paths[p ^ 1].segs));
 					IOSituationChecked = true;
 					partNeeded = (rules[type][p] == insideOtherPath);
 				}
@@ -704,7 +704,7 @@
 					if (dirCheck[i] == o) {
 						continue;
 					}
-					if (isSegInsidePath(newPath[dirCheck[i]][0], pathArrToStr(pathSegsToArr(newPath[o])))) {
+					if (isSegInsidePath(newPath[dirCheck[i]][0], pathSegsToStr(newPath[o]))) {
 						var pathDirOut = getPathDirection(newPath[o]);
 						var pathDirIn = getPathDirection(newPath[dirCheck[i]]);
 
@@ -733,7 +733,7 @@
 	 * @param array path1Segs (segment representation of path1)
 	 * @param array path2Segs (segment representation of path2)
 	 *
-	 * @return array newPath (segment represention of the resulting path)
+	 * @return array newPath (segment representation of the resulting path)
 	 */
 	var execBO = function(type, path1Segs, path2Segs) {
 		path1Segs = JSON.parse(JSON.stringify(path1Segs));
@@ -743,7 +743,7 @@
 		markSubpathEndings(path1Segs, path2Segs);
 
 		//get intersections of both paths (use strict mode)
-		var inters = getIntersections(pathArrToStr(pathSegsToArr(path1Segs)), pathArrToStr(pathSegsToArr(path2Segs)), true);
+		var inters = getIntersections(pathSegsToStr(path1Segs), pathSegsToStr(path2Segs), true);
 
 		//if any insert intersections into paths
 		if (inters.length > 0) {
@@ -763,7 +763,7 @@
 	 *
 	 * @param object el (RaphaelJS element)
 	 *
-	 * @returns array pathSegs (given elemennt in path segment representation)
+	 * @returns array pathSegs (given element in path segment representation)
 	 */
 	var prepare = function(el) {
 		//get path array (convert element to path)
