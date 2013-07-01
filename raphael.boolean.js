@@ -8,7 +8,10 @@
 
 /*********************************************************************************************\
 
- Version: 0.1 (released 2013-01-02)
+ Version: 0.2 (released 2013-07-01)
+ 
+ 	Contributions:
+ 	Bruno Heridet (https://github.com/Delapouite)
 
 	TODO:
 	Currently the plugin is not able to handle self intersecting (sub-)paths properly.
@@ -269,7 +272,7 @@
 		var newSeg2 = [newPoint[0], newPoint[1], newA2_1[0], newA2_1[1], newA2_2[0], newA2_2[1], oldSeg[6], oldSeg[7]];
 		newSeg2.startPoint = "I" + intersId; //mark start point as intersection
 		if (typeof oldSeg.endPoint != "undefined") {
-			newSeg1.endPoint = oldSeg.endPoint;
+			newSeg2.endPoint = oldSeg.endPoint;
 		}
 
 		//insert new segments and replace the old one
