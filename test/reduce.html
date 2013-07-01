@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Raphael.boolean reduce</title>
+	</head>
+	<body>
+		<div id="reduce"></div>
+		<script src="./../raphael-min.js"></script>
+		<script src="./../raphael.boolean.js"></script>
+		<script>
+			var paper = Raphael("reduce", 500, 250);
+
+			var path = paper.path("M 43,53 183,85 C 194,113 179,136 167,161 122,159 98,195 70,188 Z");
+			path.attr({fill: "#a00", stroke: "none"});
+
+			var ellipse = paper.ellipse(170, 160, 40, 35);
+			ellipse.attr({fill: "#0a0", stroke: "none"});
+
+			var rectangle = paper.rect(190, 20, 25, 90);
+			rectangle.attr({fill: "#00a", stroke: "none"});
+
+			var circle = paper.circle(20, 90, 10);
+			circle.attr({fill: "#901", stroke: "none"});
+
+			var elements = [];
+			paper.forEach(function(element) {
+				elements.push(element);
+			});
+
+			var booleanPath = elements.reduce(function(first, second) {
+				var union = paper.path(paper.union(first, second));
+				union.attr({fill: "none", stroke: "#000"});
+				return union;
+			});
+
+			booleanPath.attr({fill: "#0aa", stroke: "none"});
+			booleanPath.transform('t250,0');
+		</script>
+	</body>
+</html>

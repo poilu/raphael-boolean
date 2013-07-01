@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Raphael.boolean</title>
+	</head>
+	<body>
+		<script src="./../raphael-min.js"></script>
+		<script src="./../raphael.boolean.js"></script>
+		<script>
+			["union", "difference", "intersection", "exclusion"].forEach(function(type) {
+				var h2 = document.body.appendChild(document.createElement("h2"));
+				h2.innerText = type;
+
+				var div = document.body.appendChild(document.createElement("div"));
+				div.id = type;
+
+				var paper = Raphael(type, 500, 250);
+
+				var path = paper.path("M 43,53 183,85 C 194,113 179,136 167,161 122,159 98,195 70,188 Z");
+				path.attr({fill: "#a00", stroke: "none"});
+
+				var ellipse = paper.ellipse(170, 160, 40, 35);
+				ellipse.attr({fill: "#0a0", stroke: "none"});
+
+				var booleanStr = paper[type](path, ellipse);
+				var booleanPath = paper.path(booleanStr);
+				booleanPath.attr({fill: "#00a", stroke: "none"});
+				booleanPath.transform("t250,0");
+			});
+		</script>
+	</body>
+</html>
