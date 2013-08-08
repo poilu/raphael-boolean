@@ -56,7 +56,7 @@
 			//if command is a moveto create new sub-path
 			var seg = [];
 			if (pathArr[i][0] != "M") {
-
+                
 				seg.push(pathArr[i - 1][pathArr[i - 1].length - 2], pathArr[i - 1][pathArr[i - 1].length - 1]);
 
 				for (var j = 1; j < pathArr[i].length; j++) {
@@ -80,6 +80,15 @@
 	 *
 	 * @returns array pathArr (RaphaelJS path array)
 	 */
+    var getPreviousSegment = function(segs, index) {
+        // find the first non empty segment before this index
+        for (var i = index - 1; i >= 0; i--) {
+            if (segs[i].length > 0)
+                return segs[i];
+        }
+        return;
+    }
+    
 	var pathSegsToArr = function(pathSegs) {
 		var pathArr = [];
 
@@ -89,8 +98,11 @@
 				continue;
 			}
 			var command = [];
+            var prevSeg = getPreviousSegment(pathSegs, i);
 			//if start point of current segment is different from end point of previous segment add a new subpath
-			if (i === 0 || (pathSegs[i][0] != pathSegs[i - 1][pathSegs[i - 1].length - 2] || pathSegs[i][1] != pathSegs[i - 1][pathSegs[i - 1].length - 1])) {
+			if (i === 0 || 
+                ( typeof prevSeg !== "undefined" && (pathSegs[i][0] != prevSeg[prevSeg.length - 2] || pathSegs[i][1] != prevSeg[prevSeg.length - 1]) )
+               ) {
 				command.push("M", pathSegs[i][0], pathSegs[i][1]);
 				pathArr.push(command);
 				command = [];
