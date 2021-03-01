@@ -206,8 +206,19 @@
 	 * @returns void
 	 */
 	var markSubpathEndings = function() {
-		var subPaths = 0, //store overall number of existing subpaths (for id generation)
+		var currentId, //id of the current path's starting point
+			markedCount = 0,
+			markedPoints = [],
 			path;
+
+		//generate a unique id for unknown points
+		function findOrCreateId(x, y) {
+			var id = markedPoints[[x, y]];
+			if (id) {
+				return id;
+			}
+			return markedPoints[[x, y]] = "S" + markedCount++;
+		}
 
 		//iterate paths
 		for (var i = 0; i < arguments.length; i++) {
@@ -216,15 +227,16 @@
 			for (var j = 0; j < path.length; j++) {
 				//first segment of a path has always starting point of subpath
 				if (j === 0) {
-					path[j].startPoint = "S" + subPaths;
+					currentId = findOrCreateId(path[j][0], path[j][1]);
+					path[j].startPoint = currentId;
 				}
 
 				//if ending point of a segment is different from starting  point of next seg. mark both
 				if (j < path.length - 1) {
 					if (path[j][6] != path[j + 1][0] || path[j][7] != path[j + 1][1]) {
-						path[j].endPoint = "S" + subPaths;
-						subPaths++;
-						path[j + 1].startPoint = "S" + subPaths;
+						path[j].endPoint = currentId;
+						currentId = findOrCreateId(path[j + 1][0], path[j + 1][1]);
+						path[j + 1].startPoint = currentId;
 					}
 				}
 
@@ -232,8 +244,7 @@
 
 				//last segment of a path has always ending point of subpath
 				if (j == path.length - 1) {
-					path[j].endPoint = "S" + subPaths;
-					subPaths++;
+					path[j].endPoint = currentId;
 				}
 			}
 		}
