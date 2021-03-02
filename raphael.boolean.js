@@ -483,12 +483,10 @@
 			valid = true;
 
 			//iterate all valid intersections and check if point already exists, if not push to valid intersections
-			if (validInters.length > 0) {
-				for (var j = 1; j < validInters.length; j++) {
-					if((Math.abs(validInters[j].x - p.x) < d && Math.abs(validInters[j].y - p.y) < d)) {
-						valid = false;
-						break;
-					}
+			for (var j = 0; j < validInters.length; j++) {
+				if((Math.abs(validInters[j].x - p.x) < d && Math.abs(validInters[j].y - p.y) < d)) {
+					valid = false;
+					break;
 				}
 			}
 
