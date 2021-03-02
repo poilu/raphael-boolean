@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Raphael.boolean bug</title>
+		<title>Raphael.boolean shared start point bug</title>
 	</head>
 	<body>
 		<script src="./../raphael-min.js"></script>
@@ -14,23 +14,22 @@
 				var div = document.body.appendChild(document.createElement("div"));
 				div.id = type;
 
-				var paper = Raphael(type, 500, 250);
+				var paper = Raphael(type, 350, 150);
 
-				var path = paper.path("M 43,53 183,85 C 194,113 179,136 167,161 122,159 98,195 70,188 Z");
-				path.attr({fill: "#faa", stroke: "#a00"});
+				var path1 = paper.path("M 100,0 L60,120 L140,40 Z");
+				path1.attr({fill: "#faa", stroke: "#a00"});
 
-				var rectangle = paper.rect(90, 20, 25, 90);
-				rectangle.attr({fill: "#afa", stroke: "#0a0"});
-				console.log(rectangle);
+				var path2 = paper.path("M 100,0 L140,120 L60,40 Z");
+				path2.attr({fill: "#afa", stroke: "#0a0"});
 
-				paper.getPathInters(path, rectangle).forEach(function(p) {
+				paper.getPathInters(path1, path2).forEach(function(p) {
 					paper.circle(p[0], p[1], 5).attr({stroke: '#000'});
 				});
 
-				var booleanStr = paper[type](path, rectangle);
+				var booleanStr = paper[type](path1, path2);
 				var booleanPath = paper.path(booleanStr);
 				booleanPath.attr({fill: "#aaf", stroke: "#00a"});
-				booleanPath.transform("t250,0");
+				booleanPath.transform("t150,0");
 			});
 		</script>
 	</body>

@@ -17,18 +17,18 @@
 				var paper = Raphael(type, 500, 250);
 
 				var path = paper.path("M 43,53 183,85 C 194,113 179,136 167,161 122,159 98,195 70,188 Z");
-				path.attr({fill: "#a00", stroke: "none"});
+				path.attr({fill: "#faa", stroke: "#a00"});
 
 				var ellipse = paper.ellipse(170, 160, 40, 35);
-				ellipse.attr({fill: "#0a0", stroke: "none"});
+				ellipse.attr({fill: "#afa", stroke: "#0a0"});
 
 				paper.getPathInters(path, ellipse).forEach(function(p) {
-					paper.circle(p[0], p[1], 5).attr({stroke: '#0ff'});
+					paper.circle(p[0], p[1], 5).attr({stroke: '#000'});
 				});
 
 				var booleanStr = paper[type](path, ellipse);
 				var booleanPath = paper.path(booleanStr);
-				booleanPath.attr({fill: "#00a", stroke: "none"});
+				booleanPath.attr({fill: "#aaf", stroke: "#00a"});
 				booleanPath.transform("t250,0");
 			});
 		</script>
