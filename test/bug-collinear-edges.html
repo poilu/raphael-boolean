@@ -1,36 +1,15 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Raphael.boolean shared start point bug</title>
+		<title>Raphael.boolean collinear edges bug</title>
 	</head>
 	<body>
 		<script src="./../raphael-min.js"></script>
 		<script src="./../raphael.boolean.js"></script>
-		<script>
-			["union", "difference", "intersection", "exclusion"].forEach(function(type) {
-				var h2 = document.body.appendChild(document.createElement("h2"));
-				h2.innerText = type;
-
-				var div = document.body.appendChild(document.createElement("div"));
-				div.id = type;
-
-				var paper = Raphael(type, 300, 100);
-
-				var path1 = paper.path("M2,11 L74,4 L62,41 L52,34 L51,36 Z");
-				path1.attr({fill: "#faa", stroke: "#a00"});
-
-				var path2 = paper.path("M95,68 L81,17 L48,31 Z");
-				path2.attr({fill: "#afa", stroke: "#0a0"});
-
-				paper.getPathInters(path1, path2).forEach(function(p) {
-					paper.circle(p[0], p[1], 5).attr({stroke: '#000'});
-				});
-
-				var booleanStr = paper[type](path1, path2);
-				var booleanPath = paper.path(booleanStr);
-				booleanPath.attr({fill: "#aaf", stroke: "#00a"});
-				booleanPath.transform("t150,0");
-			});
+		<script src="./test.js"></script>
+		<script>testPaths(150, 100,
+				"M22,26 L94,19 L82,56 L72,49 L71,51 Z",
+				"M115,83 L101,32 L68,46 Z");
 		</script>
 	</body>
 </html>

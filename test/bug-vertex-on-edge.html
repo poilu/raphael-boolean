@@ -1,36 +1,15 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Raphael.boolean shared start point bug</title>
+		<title>Raphael.boolean vertex on edge bug</title>
 	</head>
 	<body>
 		<script src="./../raphael-min.js"></script>
 		<script src="./../raphael.boolean.js"></script>
-		<script>
-			["union", "difference", "intersection", "exclusion"].forEach(function(type) {
-				var h2 = document.body.appendChild(document.createElement("h2"));
-				h2.innerText = type;
-
-				var div = document.body.appendChild(document.createElement("div"));
-				div.id = type;
-
-				var paper = Raphael(type, 400, 150);
-
-				var path1 = paper.rect(80,20,80,60);
-				path1.attr({fill: "#faa", stroke: "#a00"});
-
-				var path2 = paper.circle(80,80,50);
-				path2.attr({fill: "#afa", stroke: "#0a0"});
-
-				paper.getPathInters(path1, path2).forEach(function(p) {
-					paper.circle(p[0], p[1], 5).attr({stroke: '#000'});
-				});
-
-				var booleanStr = paper[type](path1, path2);
-				var booleanPath = paper.path(booleanStr);
-				booleanPath.attr({fill: "#aaf", stroke: "#00a"});
-				booleanPath.transform("t150,0");
-			});
+		<script src="./test.js"></script>
+		<script>testPaths(200, 150,
+				"M80,20 h80 v60 h-80 Z", // rect(80,20,80,60)
+				"M30,80 C30,52.3,52.3,30,80,30 C107.7,30,130,52.3,130,80 C130,107.7,107.7,130,80,130 C52.3,130,30,107.7,30,80"); // circle(80,80,50)
 		</script>
 	</body>
 </html>

@@ -6,31 +6,10 @@
 	<body>
 		<script src="./../raphael-min.js"></script>
 		<script src="./../raphael.boolean.js"></script>
-		<script>
-			["union", "difference", "intersection", "exclusion"].forEach(function(type) {
-				var h2 = document.body.appendChild(document.createElement("h2"));
-				h2.innerText = type;
-
-				var div = document.body.appendChild(document.createElement("div"));
-				div.id = type;
-
-				var paper = Raphael(type, 500, 250);
-
-				var path = paper.path("M 43,53 183,85 C 194,113 179,136 167,161 122,159 98,195 70,188 Z");
-				path.attr({fill: "#faa", stroke: "#a00"});
-
-				var ellipse = paper.ellipse(170, 160, 40, 35);
-				ellipse.attr({fill: "#afa", stroke: "#0a0"});
-
-				paper.getPathInters(path, ellipse).forEach(function(p) {
-					paper.circle(p[0], p[1], 5).attr({stroke: '#000'});
-				});
-
-				var booleanStr = paper[type](path, ellipse);
-				var booleanPath = paper.path(booleanStr);
-				booleanPath.attr({fill: "#aaf", stroke: "#00a"});
-				booleanPath.transform("t250,0");
-			});
+		<script src="./test.js"></script>
+		<script>testPaths(250, 250,
+				"M 43,53 183,85 C 194,113 179,136 167,161 122,159 98,195 70,188 Z",
+				"M130,160 a40,35,0,1,0,80,0 a40,35,0,1,0,-80,0"); // ellipse(170,160,40,35)
 		</script>
 	</body>
 </html>

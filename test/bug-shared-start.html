@@ -6,31 +6,10 @@
 	<body>
 		<script src="./../raphael-min.js"></script>
 		<script src="./../raphael.boolean.js"></script>
-		<script>
-			["union", "difference", "intersection", "exclusion"].forEach(function(type) {
-				var h2 = document.body.appendChild(document.createElement("h2"));
-				h2.innerText = type;
-
-				var div = document.body.appendChild(document.createElement("div"));
-				div.id = type;
-
-				var paper = Raphael(type, 350, 150);
-
-				var path1 = paper.path("M 100,0 L60,120 L140,40 Z");
-				path1.attr({fill: "#faa", stroke: "#a00"});
-
-				var path2 = paper.path("M 100,0 L140,120 L60,40 Z");
-				path2.attr({fill: "#afa", stroke: "#0a0"});
-
-				paper.getPathInters(path1, path2).forEach(function(p) {
-					paper.circle(p[0], p[1], 5).attr({stroke: '#000'});
-				});
-
-				var booleanStr = paper[type](path1, path2);
-				var booleanPath = paper.path(booleanStr);
-				booleanPath.attr({fill: "#aaf", stroke: "#00a"});
-				booleanPath.transform("t150,0");
-			});
+		<script src="./test.js"></script>
+		<script>testPaths(160, 140,
+				"M 80,10 L40,120 L120,40 Z",
+				"M 80,10 L120,120 L40,40 Z");
 		</script>
 	</body>
 </html>
