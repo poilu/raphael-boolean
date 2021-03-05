@@ -339,7 +339,11 @@
 		var point = Raphael.findDotsAtSegment(seg[0], seg[1], seg[2], seg[3], seg[4], seg[5], seg[6], seg[7], 0.5);
 
 		//is point inside of given path
-		return Raphael.isPointInsidePath(path, point.x, point.y);
+		var bbox = Raphael.pathBBox(path);
+		var dx = bbox.width * 1.1;
+		var dy = bbox.height * Math.random() / 100;
+		return Raphael.isPointInsideBBox(bbox, point.x, point.y) &&
+			Raphael.pathIntersectionNumber(path, [["M", point.x, point.y], ["l", dx, dy]], 1) % 2 == 1;
 	};
 
 	/**
@@ -429,7 +433,7 @@
 
 		//"draw" a horizontal line from left to right at half height of path's bbox
 		var lineY = box.y + box.height / 2;
-		var line = ("M" + box.x + "," + lineY + "L" + box.x2 + "," + lineY);
+		var line = ("M" + box.x + "," + lineY + "l" + box.width + "," + box.height * Math.random() / 100);
 
 		//get intersections of line and path
 		var inters = Raphael.pathIntersection(line, path);
