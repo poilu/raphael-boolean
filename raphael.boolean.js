@@ -835,7 +835,8 @@
 	var exclusion = function(el1, el2) {
 		var pathA = prepare(el1),
 			pathB = prepare(el2);
-		return pathSegsToStr(execBO("difference", execBO("union", pathA, pathB), execBO("intersection", pathA, pathB)));
+		return pathSegsToStr(execBO("difference", pathA, pathB))
+			+ pathSegsToStr(execBO("difference", pathB, pathA));
 	};
 
 	//add public methods to Raphael
