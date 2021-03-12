@@ -431,9 +431,11 @@
 		var path = pathSegsToStr(pathSegArr);
 		var box = Raphael.pathBBox(path);
 
-		//"draw" a horizontal line from left to right at half height of path's bbox
+		//"draw" a horizontal line from left to right at half height of path's bbox,
+		//with some jitter to avoid intersecting at exact vertices.
 		var lineY = box.y + box.height / 2;
-		var line = ("M" + box.x + "," + lineY + "l" + box.width + "," + box.height * Math.random() / 100);
+		var line = ("M" + box.x + "," + (lineY - box.height * Math.random() / 100)
+			 + "L" + box.x2 + "," + (lineY + box.height * Math.random() / 100));
 
 		//get intersections of line and path
 		var inters = Raphael.pathIntersection(line, path);
@@ -449,13 +451,11 @@
 		}
 
 		//decide, if path is clockwise (1) or counter clockwise (-1)
-		if (startY < lineY && inters[minT].segment2 >= inters[maxT].segment2 || startY > lineY && inters[minT].segment2 <= inters[maxT].segment2) {
+		if ((startY < lineY) == (inters[minT].segment2 >= inters[maxT].segment2)) {
 			//for path with only one segment compare t
-			if (inters[minT].segment2 == inters[maxT].segment2) {
-				if (startY < lineY && inters[minT].t2 >= inters[maxT].t2 || startY > lineY && inters[minT].t2 <= inters[maxT].t2) {
-					dir = 1;
-				}
-			} else {
+			if (inters[minT].segment2 != inters[maxT].segment2) {
+				dir = 1;
+			} else if ((startY < lineY) == (inters[minT].t2 >= inters[maxT].t2)) {
 				dir = 1;
 			}
 		}
