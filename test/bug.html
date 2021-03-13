@@ -4,30 +4,12 @@
 		<title>Raphael.boolean bug</title>
 	</head>
 	<body>
-		<script src="./../raphael-min.js"></script>
+		<script src="./../raphael/raphael.min.js"></script>
 		<script src="./../raphael.boolean.js"></script>
-		<script>
-			["union", "difference", "intersection", "exclusion"].forEach(function(type) {
-				var h2 = document.body.appendChild(document.createElement("h2"));
-				h2.innerText = type;
-
-				var div = document.body.appendChild(document.createElement("div"));
-				div.id = type;
-
-				var paper = Raphael(type, 500, 250);
-
-				var path = paper.path("M 43,53 183,85 C 194,113 179,136 167,161 122,159 98,195 70,188 Z");
-				path.attr({fill: "#a00", stroke: "none"});
-
-				var rectangle = paper.rect(90, 20, 25, 90);
-				rectangle.attr({fill: "#0a0", stroke: "none"});
-				console.log(rectangle);
-
-				var booleanStr = paper[type](path, rectangle);
-				var booleanPath = paper.path(booleanStr);
-				booleanPath.attr({fill: "#00a", stroke: "none"});
-				booleanPath.transform("t250,0");
-			});
+		<script src="./test.js"></script>
+		<script>testPaths(220, 210,
+				"M 43,53 183,85 C 194,113 179,136 167,161 122,159 98,195 70,188 Z",
+				"M90,20 h25 v90 h-25 Z");
 		</script>
 	</body>
 </html>

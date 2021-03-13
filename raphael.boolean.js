@@ -119,8 +119,8 @@
 
 		switch (el.type) {
 			case "rect":
-				var rx = a.r,
-					ry = a.r,
+				var rx = a.rx || a.r || 0,
+					ry = a.ry || a.r || 0,
 					cornerPoints = [
 						[a.x, a.y],
 						[a.x + a.width, a.y],
@@ -183,14 +183,14 @@
 				path.push(["C", c1[0], c1[1], c2[0], c2[1], p2[0], p2[1]]);
 			}
 
-			if (i < 3) {
-				//if it's a rectangle draw line to next corner (point)
-				if (el.type == "rect") {
+			//if it's a rectangle draw line to next corner (point)
+			if (el.type == "rect") {
+				if (i < 3) {
 					var p1 = [cornerPoints[i + 1][0] + radiusShift[i + 1][0][0] * rx, cornerPoints[i + 1][1] + radiusShift[i + 1][0][1] * ry];
 					path.push(["L", p1[0], p1[1]]);
+				} else {
+					path.push(["Z"]);
 				}
-			} else {
-				path.push(["Z"]);
 			}
 		}
 
@@ -206,8 +206,19 @@
 	 * @returns void
 	 */
 	var markSubpathEndings = function() {
-		var subPaths = 0, //store overall number of existing subpaths (for id generation)
+		var currentId, //id of the current path's starting point
+			markedCount = 0,
+			markedPoints = [],
 			path;
+
+		//generate a unique id for unknown points
+		function findOrCreateId(x, y) {
+			var id = markedPoints[[x, y]];
+			if (id) {
+				return id;
+			}
+			return markedPoints[[x, y]] = "S" + markedCount++;
+		}
 
 		//iterate paths
 		for (var i = 0; i < arguments.length; i++) {
@@ -216,15 +227,16 @@
 			for (var j = 0; j < path.length; j++) {
 				//first segment of a path has always starting point of subpath
 				if (j === 0) {
-					path[j].startPoint = "S" + subPaths;
+					currentId = findOrCreateId(path[j][0], path[j][1]);
+					path[j].startPoint = currentId;
 				}
 
 				//if ending point of a segment is different from starting  point of next seg. mark both
 				if (j < path.length - 1) {
 					if (path[j][6] != path[j + 1][0] || path[j][7] != path[j + 1][1]) {
-						path[j].endPoint = "S" + subPaths;
-						subPaths++;
-						path[j + 1].startPoint = "S" + subPaths;
+						path[j].endPoint = currentId;
+						currentId = findOrCreateId(path[j + 1][0], path[j + 1][1]);
+						path[j + 1].startPoint = currentId;
 					}
 				}
 
@@ -232,8 +244,7 @@
 
 				//last segment of a path has always ending point of subpath
 				if (j == path.length - 1) {
-					path[j].endPoint = "S" + subPaths;
-					subPaths++;
+					path[j].endPoint = currentId;
 				}
 			}
 		}
@@ -339,7 +350,11 @@
 		var point = Raphael.findDotsAtSegment(seg[0], seg[1], seg[2], seg[3], seg[4], seg[5], seg[6], seg[7], 0.5);
 
 		//is point inside of given path
-		return Raphael.isPointInsidePath(path, point.x, point.y);
+		var bbox = Raphael.pathBBox(path);
+		var dx = bbox.width * 1.1;
+		var dy = bbox.height * Math.random() / 100;
+		return Raphael.isPointInsideBBox(bbox, point.x, point.y) &&
+			Raphael.pathIntersectionNumber(path, [["M", point.x, point.y], ["l", dx, dy]], 1) % 2 == 1;
 	};
 
 	/**
@@ -427,9 +442,11 @@
 		var path = pathSegsToStr(pathSegArr);
 		var box = Raphael.pathBBox(path);
 
-		//"draw" a horizontal line from left to right at half height of path's bbox
+		//"draw" a horizontal line from left to right at half height of path's bbox,
+		//with some jitter to avoid intersecting at exact vertices.
 		var lineY = box.y + box.height / 2;
-		var line = ("M" + box.x + "," + lineY + "L" + box.x2 + "," + lineY);
+		var line = ("M" + box.x + "," + (lineY - box.height * Math.random() / 100)
+			 + "L" + box.x2 + "," + (lineY + box.height * Math.random() / 100));
 
 		//get intersections of line and path
 		var inters = Raphael.pathIntersection(line, path);
@@ -445,13 +462,11 @@
 		}
 
 		//decide, if path is clockwise (1) or counter clockwise (-1)
-		if (startY < lineY && inters[minT].segment2 >= inters[maxT].segment2 || startY > lineY && inters[minT].segment2 <= inters[maxT].segment2) {
+		if ((startY < lineY) == (inters[minT].segment2 >= inters[maxT].segment2)) {
 			//for path with only one segment compare t
-			if (inters[minT].segment2 == inters[maxT].segment2) {
-				if (startY < lineY && inters[minT].t2 >= inters[maxT].t2 || startY > lineY && inters[minT].t2 <= inters[maxT].t2) {
-					dir = 1;
-				}
-			} else {
+			if (inters[minT].segment2 != inters[maxT].segment2) {
+				dir = 1;
+			} else if ((startY < lineY) == (inters[minT].t2 >= inters[maxT].t2)) {
 				dir = 1;
 			}
 		}
@@ -461,18 +476,18 @@
 
 	/**
 	 * wrapper for RaphaelJS pathIntersection()
-	 * with filter for redundant intersections caused by
-	 * - self-intersection (path1 = path2)
-	 * - intersections that lies exactly in path points (path1 != path2; use strict mode!)
+	 * with filter for redundant intersections caused by self-intersection (path1 = path2)
 	 *
 	 * @param string path1
 	 * @param string path2
-	 * @param bool strict (true: also assume intersections as obolete that are close segment's starting / ending points; use only when path1 != path2!)
 	 *
 	 * @returns array validInters (filtered path intersections calculated by Raphael.pathIntersections())
 	 */
-	var getIntersections = function(path1, path2, strict) {
-		var d = 0.1; //min. deviation to assume point as different from another
+	var getIntersections = function(path1, path2) {
+		var box1 = Raphael.pathBBox(path1);
+		var box2 = Raphael.pathBBox(path2);
+		//min. deviation to assume point as different from another
+		var d = Math.max(box1.width, box1.height, box2.width, box2.height) / 1000;
 		var inters = Raphael.pathIntersection(path1, path2);
 		var validInters = [];
 		var valid = true;
@@ -483,18 +498,10 @@
 			valid = true;
 
 			//iterate all valid intersections and check if point already exists, if not push to valid intersections
-			if (validInters.length > 0) {
-				for (var j = 1; j < validInters.length; j++) {
-					if((Math.abs(validInters[j].x - p.x) < d && Math.abs(validInters[j].y - p.y) < d)) {
-						valid = false;
-						break;
-					}
-				}
-			}
-
-			if (valid && strict) {
-				if ((1 - p.t1 < d || p.t1 < d) && (1 - p.t2 < d || p.t2 < d)) {
+			for (var j = 0; j < validInters.length; j++) {
+				if((Math.abs(validInters[j].x - p.x) < d && Math.abs(validInters[j].y - p.y) < d)) {
 					valid = false;
+					break;
 				}
 			}
 
@@ -745,8 +752,8 @@
 		//mark the starting and ending points of the subpaths
 		markSubpathEndings(path1Segs, path2Segs);
 
-		//get intersections of both paths (use strict mode)
-		var inters = getIntersections(pathSegsToStr(path1Segs), pathSegsToStr(path2Segs), true);
+		//get intersections of both paths
+		var inters = getIntersections(pathSegsToStr(path1Segs), pathSegsToStr(path2Segs));
 
 		//if any insert intersections into paths
 		if (inters.length > 0) {
@@ -781,6 +788,26 @@
 		//convert RaphaelJS' internal path representation to segment representation (of bezier curves) for better handling
 		return pathArrToSegs(pathArr);
 	};
+
+	/**
+	 * return intersection of the two given paths
+	 *
+	 * @param object el1 (RaphaelJS element)
+	 * @param object el2 (RaphaelJS element)
+	 *
+	 * @returns array pathInters (list of point coordinates)
+	 */
+	var getPathInters = function(el1, el2) {
+		var path1Segs = JSON.parse(JSON.stringify(prepare(el1)));
+		var path2Segs = JSON.parse(JSON.stringify(prepare(el2)));
+
+		var ret = [];
+		var inters = getIntersections(pathSegsToStr(path1Segs), pathSegsToStr(path2Segs), true);
+		for (var i = 0; i < inters.length; ++i) {
+			ret.push([inters[i].x, inters[i].y]);
+		}
+		return ret;
+	}
 
 	/**
 	 * perform a union of the two given paths
@@ -835,11 +862,13 @@
 	var exclusion = function(el1, el2) {
 		var pathA = prepare(el1),
 			pathB = prepare(el2);
-		return pathSegsToStr(execBO("difference", execBO("union", pathA, pathB), execBO("intersection", pathA, pathB)));
+		return pathSegsToStr(execBO("difference", pathA, pathB))
+			+ pathSegsToStr(execBO("difference", pathB, pathA));
 	};
 
 	//add public methods to Raphael
 	Raphael.fn.toPath = toPath;
+	Raphael.fn.getPathInters = getPathInters;
 
 	Raphael.fn.union = union;
 	Raphael.fn.difference = difference;
