@@ -350,7 +350,11 @@
 		var point = Raphael.findDotsAtSegment(seg[0], seg[1], seg[2], seg[3], seg[4], seg[5], seg[6], seg[7], 0.5);
 
 		//is point inside of given path
-		return Raphael.isPointInsidePath(path, point.x, point.y);
+		var bbox = Raphael.pathBBox(path);
+		var dx = bbox.width * 1.1;
+		var dy = bbox.height * Math.random() / 100;
+		return Raphael.isPointInsideBBox(bbox, point.x, point.y) &&
+			Raphael.pathIntersectionNumber(path, [["M", point.x, point.y], ["l", dx, dy]], 1) % 2 == 1;
 	};
 
 	/**
@@ -438,9 +442,11 @@
 		var path = pathSegsToStr(pathSegArr);
 		var box = Raphael.pathBBox(path);
 
-		//"draw" a horizontal line from left to right at half height of path's bbox
+		//"draw" a horizontal line from left to right at half height of path's bbox,
+		//with some jitter to avoid intersecting at exact vertices.
 		var lineY = box.y + box.height / 2;
-		var line = ("M" + box.x + "," + lineY + "L" + box.x2 + "," + lineY);
+		var line = ("M" + box.x + "," + (lineY - box.height * Math.random() / 100)
+			 + "L" + box.x2 + "," + (lineY + box.height * Math.random() / 100));
 
 		//get intersections of line and path
 		var inters = Raphael.pathIntersection(line, path);
@@ -456,13 +462,11 @@
 		}
 
 		//decide, if path is clockwise (1) or counter clockwise (-1)
-		if (startY < lineY && inters[minT].segment2 >= inters[maxT].segment2 || startY > lineY && inters[minT].segment2 <= inters[maxT].segment2) {
+		if ((startY < lineY) == (inters[minT].segment2 >= inters[maxT].segment2)) {
 			//for path with only one segment compare t
-			if (inters[minT].segment2 == inters[maxT].segment2) {
-				if (startY < lineY && inters[minT].t2 >= inters[maxT].t2 || startY > lineY && inters[minT].t2 <= inters[maxT].t2) {
-					dir = 1;
-				}
-			} else {
+			if (inters[minT].segment2 != inters[maxT].segment2) {
+				dir = 1;
+			} else if ((startY < lineY) == (inters[minT].t2 >= inters[maxT].t2)) {
 				dir = 1;
 			}
 		}
