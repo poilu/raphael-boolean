@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Raphael.boolean shared start point bug</title>
+		<title>Raphael.boolean collinear edges bug</title>
 	</head>
 	<body>
 		<script src="./../raphael-min.js"></script>
 		<script src="./../raphael.boolean.js"></script>
 		<script src="./test.js"></script>
-		<script>testPaths(160, 140,
-				"M 80,10 L40,120 L120,40 Z",
-				"M 80,10 L120,120 L40,40 Z");
+		<script>testPaths(150, 100,
+				"M22,26 L94,19 L82,56 L72,49 L71,51 Z",
+				"M115,83 L101,32 L68,46 Z");
 		</script>
 	</body>
 </html>

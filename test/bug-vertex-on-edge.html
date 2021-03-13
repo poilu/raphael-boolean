@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Raphael.boolean vertex on edge bug</title>
+	</head>
+	<body>
+		<script src="./../raphael-min.js"></script>
+		<script src="./../raphael.boolean.js"></script>
+		<script src="./test.js"></script>
+		<script>testPaths(200, 150,
+				"M80,20 h80 v60 h-80 Z", // rect(80,20,80,60)
+				"M30,80 C30,52.3,52.3,30,80,30 C107.7,30,130,52.3,130,80 C130,107.7,107.7,130,80,130 C52.3,130,30,107.7,30,80"); // circle(80,80,50)
+		</script>
+	</body>
+</html>
