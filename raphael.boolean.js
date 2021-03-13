@@ -119,8 +119,8 @@
 
 		switch (el.type) {
 			case "rect":
-				var rx = a.r,
-					ry = a.r,
+				var rx = a.rx || a.r || 0,
+					ry = a.ry || a.r || 0,
 					cornerPoints = [
 						[a.x, a.y],
 						[a.x + a.width, a.y],
