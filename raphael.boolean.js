@@ -472,18 +472,18 @@
 
 	/**
 	 * wrapper for RaphaelJS pathIntersection()
-	 * with filter for redundant intersections caused by
-	 * - self-intersection (path1 = path2)
-	 * - intersections that lies exactly in path points (path1 != path2; use strict mode!)
+	 * with filter for redundant intersections caused by self-intersection (path1 = path2)
 	 *
 	 * @param string path1
 	 * @param string path2
-	 * @param bool strict (true: also assume intersections as obolete that are close segment's starting / ending points; use only when path1 != path2!)
 	 *
 	 * @returns array validInters (filtered path intersections calculated by Raphael.pathIntersections())
 	 */
-	var getIntersections = function(path1, path2, strict) {
-		var d = 0.1; //min. deviation to assume point as different from another
+	var getIntersections = function(path1, path2) {
+		var box1 = Raphael.pathBBox(path1);
+		var box2 = Raphael.pathBBox(path2);
+		//min. deviation to assume point as different from another
+		var d = Math.max(box1.width, box1.height, box2.width, box2.height) / 1000;
 		var inters = Raphael.pathIntersection(path1, path2);
 		var validInters = [];
 		var valid = true;
@@ -494,18 +494,10 @@
 			valid = true;
 
 			//iterate all valid intersections and check if point already exists, if not push to valid intersections
-			if (validInters.length > 0) {
-				for (var j = 1; j < validInters.length; j++) {
-					if((Math.abs(validInters[j].x - p.x) < d && Math.abs(validInters[j].y - p.y) < d)) {
-						valid = false;
-						break;
-					}
-				}
-			}
-
-			if (valid && strict) {
-				if ((1 - p.t1 < d || p.t1 < d) && (1 - p.t2 < d || p.t2 < d)) {
+			for (var j = 0; j < validInters.length; j++) {
+				if((Math.abs(validInters[j].x - p.x) < d && Math.abs(validInters[j].y - p.y) < d)) {
 					valid = false;
+					break;
 				}
 			}
 
@@ -756,8 +748,8 @@
 		//mark the starting and ending points of the subpaths
 		markSubpathEndings(path1Segs, path2Segs);
 
-		//get intersections of both paths (use strict mode)
-		var inters = getIntersections(pathSegsToStr(path1Segs), pathSegsToStr(path2Segs), true);
+		//get intersections of both paths
+		var inters = getIntersections(pathSegsToStr(path1Segs), pathSegsToStr(path2Segs));
 
 		//if any insert intersections into paths
 		if (inters.length > 0) {
