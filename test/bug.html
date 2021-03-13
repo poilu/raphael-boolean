@@ -23,6 +23,10 @@
 				rectangle.attr({fill: "#0a0", stroke: "none"});
 				console.log(rectangle);
 
+				paper.getPathInters(path, rectangle).forEach(function(p) {
+					paper.circle(p[0], p[1], 5).attr({stroke: '#0ff'});
+				});
+
 				var booleanStr = paper[type](path, rectangle);
 				var booleanPath = paper.path(booleanStr);
 				booleanPath.attr({fill: "#00a", stroke: "none"});

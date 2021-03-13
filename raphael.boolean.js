@@ -794,6 +794,26 @@
 	};
 
 	/**
+	 * return intersection of the two given paths
+	 *
+	 * @param object el1 (RaphaelJS element)
+	 * @param object el2 (RaphaelJS element)
+	 *
+	 * @returns array pathInters (list of point coordinates)
+	 */
+	var getPathInters = function(el1, el2) {
+		var path1Segs = JSON.parse(JSON.stringify(prepare(el1)));
+		var path2Segs = JSON.parse(JSON.stringify(prepare(el2)));
+
+		var ret = [];
+		var inters = getIntersections(pathSegsToStr(path1Segs), pathSegsToStr(path2Segs), true);
+		for (var i = 0; i < inters.length; ++i) {
+			ret.push([inters[i].x, inters[i].y]);
+		}
+		return ret;
+	}
+
+	/**
 	 * perform a union of the two given paths
 	 *
 	 * @param object el1 (RaphaelJS element)
@@ -851,6 +871,7 @@
 
 	//add public methods to Raphael
 	Raphael.fn.toPath = toPath;
+	Raphael.fn.getPathInters = getPathInters;
 
 	Raphael.fn.union = union;
 	Raphael.fn.difference = difference;

@@ -22,6 +22,10 @@
 				var ellipse = paper.ellipse(170, 160, 40, 35);
 				ellipse.attr({fill: "#0a0", stroke: "none"});
 
+				paper.getPathInters(path, ellipse).forEach(function(p) {
+					paper.circle(p[0], p[1], 5).attr({stroke: '#0ff'});
+				});
+
 				var booleanStr = paper[type](path, ellipse);
 				var booleanPath = paper.path(booleanStr);
 				booleanPath.attr({fill: "#00a", stroke: "none"});
