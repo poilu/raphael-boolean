@@ -183,14 +183,14 @@
 				path.push(["C", c1[0], c1[1], c2[0], c2[1], p2[0], p2[1]]);
 			}
 
-			if (i < 3) {
-				//if it's a rectangle draw line to next corner (point)
-				if (el.type == "rect") {
+			//if it's a rectangle draw line to next corner (point)
+			if (el.type == "rect") {
+				if (i < 3) {
 					var p1 = [cornerPoints[i + 1][0] + radiusShift[i + 1][0][0] * rx, cornerPoints[i + 1][1] + radiusShift[i + 1][0][1] * ry];
 					path.push(["L", p1[0], p1[1]]);
+				} else {
+					path.push(["Z"]);
 				}
-			} else {
-				path.push(["Z"]);
 			}
 		}
 
