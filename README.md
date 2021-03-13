@@ -11,6 +11,7 @@ You can use single elements (not sets) to perform
 * exclusion [A ^ B = (A + B) - (A * B) | A XOR B]
 
 Additionally it provides a toPath method which converts a shape (rectangle, circle, ellipse) into a path. This function is also used internally by the plugin to make boolean operations possible on those elements.
+Another utility method is getPathInters, which returns the intersections of two paths and can be helpful for debugging.
 
 Usage / Example
 ---------------

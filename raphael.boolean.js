@@ -8,10 +8,11 @@
 
 /*********************************************************************************************\
 
- Version: 0.2 (released 2013-07-01)
+ Version: 0.3 (released 2021-03-13)
  
  	Contributions:
  	Bruno Heridet (https://github.com/Delapouite)
+	Sam Hocevar (https://github.com/samhocevar)
 
 	TODO:
 	Currently the plugin is not able to handle self intersecting (sub-)paths properly.
@@ -802,7 +803,7 @@
 		var path2Segs = JSON.parse(JSON.stringify(prepare(el2)));
 
 		var ret = [];
-		var inters = getIntersections(pathSegsToStr(path1Segs), pathSegsToStr(path2Segs), true);
+		var inters = getIntersections(pathSegsToStr(path1Segs), pathSegsToStr(path2Segs));
 		for (var i = 0; i < inters.length; ++i) {
 			ret.push([inters[i].x, inters[i].y]);
 		}
